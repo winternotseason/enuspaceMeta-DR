@@ -106,7 +106,10 @@ export function NewIssueModal({ isOpen, onClose }: NewIssueModalProps) {
         body: fullBodyMarkdown.trim(),
         labels: selectedTemplate.labels || []
       });
-      onClose()
+      setSelectedTemplate(null);
+      setIssueTitle('');
+      setIssueBodies({});
+      onClose();
       
     } catch (e) {
       console.error("Failed to create issue:", e);

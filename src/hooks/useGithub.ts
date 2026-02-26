@@ -23,7 +23,7 @@ export const useGithubIssues = () => {
     queryFn: async () => {
       const orgName = getOrgName();
       const res = await fetch(
-        `https://api.github.com/search/issues?q=repo:${orgName}/enuspaceMeta-issues+type:issue&sort=created&order=desc&per_page=100`,
+        `https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues?state=all&sort=created&direction=desc&per_page=100`,
         { 
           headers: getHeaders(),
           cache: 'no-store' 
@@ -31,7 +31,7 @@ export const useGithubIssues = () => {
       );
       if (!res.ok) throw new Error('Error fetching issues');
       const data = await res.json();
-      return (data.items || []) as any[];
+      return (data || []).filter((issue: any) => !issue.pull_request) as any[];
     }
   });
 };
