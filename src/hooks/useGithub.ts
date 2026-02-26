@@ -1,19 +1,17 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const getHeaders = (useUserToken: boolean = false): HeadersInit => {
-  const adminToken = import.meta.env.VITE_GITHUB_TOKEN;
   const userToken = localStorage.getItem('github_token');
-  const token = useUserToken && userToken ? userToken : adminToken;
 
   const headers: Record<string, string> = {
     'Accept': 'application/vnd.github.v3+json',
-    'Content-Type': 'application/json', 
+    'Content-Type': 'application/json',
   };
-  
-  if (token) {
 
-    headers['Authorization'] = `Bearer ${token}`;
+  if (useUserToken && userToken) {
+    headers['Authorization'] = `Bearer ${userToken}`;
   }
+
   return headers;
 };
 

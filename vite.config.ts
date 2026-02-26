@@ -8,7 +8,6 @@ export default defineConfig({
     react(),
     tailwindcss(),
   ],
-  base: '/enuspaceMeta-DR/',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

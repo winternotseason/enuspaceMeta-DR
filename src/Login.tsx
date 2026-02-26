@@ -9,9 +9,9 @@ export default function Login({ onLogin }: { onLogin?: (user: any) => void }) {
   const clientSecret = import.meta.env.VITE_GITHUB_CLIENT_SECRET;
   const orgName = import.meta.env.VITE_GITHUB_ORG || 'EXPNUNI';
 
-  useEffect(() => {
+ useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
-    const code = urlParams.get('code');
+    const code = urlParams.get("code");
 
     if (code) {
       handleOAuthCallback(code);
@@ -19,78 +19,41 @@ export default function Login({ onLogin }: { onLogin?: (user: any) => void }) {
   }, []);
 
   const handleOAuthCallback = async (code: string) => {
-    setLoading(true);
-    setErrorMsg("");
-    // URL에서 code 제거
-    window.history.replaceState({}, document.title, window.location.pathname);
+  setLoading(true);
+  setErrorMsg("");
 
-    try {
-      // 1. Exchange code for access_token
-      // (프론트엔드 환경에서 CORS 우회를 위해 corsproxy.io 사용)
-      const tokenResponse = await fetch(`https://corsproxy.io/?https://github.com/login/oauth/access_token`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-          client_id: clientId,
-          client_secret: clientSecret,
-          code: code
-        })
-      });
+  // URL에서 code 제거
+  window.history.replaceState({}, document.title, window.location.pathname);
 
-      const tokenData = await tokenResponse.json();
-      if (!tokenData.access_token) {
-         throw new Error("OAuth token exchange failed. Check your Client ID & Secret.");
-      }
+  try {
+    const response = await fetch(`/api/github?code=${code}`);
+    const data = await response.json();
 
-      // 2. 방금 로그인한 유저의 정보 가져오기
-      const userResponse = await fetch('https://api.github.com/user', {
-        headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
-      });
-      const userData = await userResponse.json();
-      
-
-      // 3. 조직(Organization) 멤버인지 확인 (로그인한 유저의 토큰으로 확인)
-      const orgResponse = await fetch('https://api.github.com/user/orgs', {
-        headers: {
-          'Authorization': `Bearer ${tokenData.access_token}`,
-          'Accept': 'application/vnd.github.v3+json'
-        }
-      });
-      const userOrgs = await orgResponse.json();
-      
-      if (!Array.isArray(userOrgs)) {
-        throw new Error("조직 목록을 불러오지 못했습니다. Github 인증 상태를 확인하세요.");
-      }
-
-      const isMember = userOrgs.some((org: any) => org.login.toLowerCase() === orgName.toLowerCase());
-
-      if (isMember) {
-        localStorage.setItem('github_token', tokenData.access_token);
-        localStorage.setItem('github_user', JSON.stringify(userData));
-        onLogin?.(userData);
-      } else {
-        setErrorMsg("조직 팀원이 아니라면 접근 불가한 계정입니다.");
-      }
-
-    } catch (err: any) {
-      console.error(err);
-      setErrorMsg(err.message || "로그인 처리 중 오류가 발생했습니다.");
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(data.error || "로그인 실패");
     }
-  };
 
-  const handleLoginClick = () => {
-    if (!clientId || clientId === 'YOUR_GITHUB_CLIENT_ID') {
-      setErrorMsg(".env에 VITE_GITHUB_CLIENT_ID 와 SECRET을 설정해주세요.");
-      return;
-    }
-    // GitHub 로그인 창으로 리다이렉트 (repo 권한 및 조직 조회 권한 요청)
-    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=repo%20read:org`;
-  };
+    localStorage.setItem("github_token", data.token);
+    localStorage.setItem("github_user", JSON.stringify(data.user));
+    onLogin?.(data.user);
+
+  } catch (err: any) {
+    console.error(err);
+    setErrorMsg(err.message || "로그인 처리 중 오류가 발생했습니다.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+const handleLoginClick = () => {
+  if (!clientId) {
+    setErrorMsg("CLIENT_ID 없음");
+    return;
+  }
+
+  window.location.href =
+    `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=repo read:org`;
+};
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-white w-full">
