@@ -10,7 +10,7 @@ export function IssuesList() {
   const [selectedIssue, setSelectedIssue] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  const { data , isLoading: loading, isError, refetch } = useGithubIssues();
+  const { data , isLoading: loading, isError} = useGithubIssues();
   const allIssues = data ?? [];
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
