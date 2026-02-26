@@ -23,7 +23,7 @@ export const useGithubIssues = () => {
     queryFn: async () => {
       const orgName = getOrgName();
       const res = await fetch(
-        `https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues?state=all&sort=created&direction=desc&per_page=100`,
+        `https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues?state=all&per_page=100`,
         { 
           headers: getHeaders(),
           cache: 'no-store' 
@@ -31,7 +31,12 @@ export const useGithubIssues = () => {
       );
       if (!res.ok) throw new Error('Error fetching issues');
       const data = await res.json();
-      return (data || []).filter((issue: any) => !issue.pull_request) as any[];
+console.log(
+  "HAS ",
+  data
+);
+     
+      return (data || []) as any[];
     }
   });
 };
@@ -97,7 +102,6 @@ export const useGithubMembers = () => {
 
 export const useCreateIssue = () => {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({ title, body, labels }: { title: string, body: string, labels: string[] }) => {
       const orgName = getOrgName();
@@ -108,7 +112,8 @@ export const useCreateIssue = () => {
           title,
           body,
           labels
-        })
+        }),
+        cache: 'no-cache'
       });
 
       if (!res.ok) {
@@ -117,10 +122,12 @@ export const useCreateIssue = () => {
 
       return res.json();
     },
-    onSuccess: () => {
-      // Refresh issues list
-      queryClient.invalidateQueries({ queryKey: ['github-issues'] });
-    }
+    onSuccess:  async (newIssue) => {
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['github-issues'] });
+      }, 2000);
+      return newIssue;
+}
   });
 };
 
@@ -323,7 +330,6 @@ export const useUpdateIssueLabels = (issueNumber: number) => {
       if (!res.ok) {
         throw new Error('Failed to update issue labels');
       }
-
       return res.json();
     },
     onSuccess: () => {

@@ -4,10 +4,12 @@ import yaml from 'js-yaml';
 import { Button } from '@/components/ui/button';
 import { MarkdownEditor } from './MarkdownEditor';
 import { useCreateIssue } from '@/hooks/useGithub';
+import { Dispatch } from 'react';
 
 interface NewIssueModalProps {
   isOpen: boolean;
   onClose: () => void;
+  setSelectedIssue: Dispatch<any>
 }
 
 interface TemplateDef {
@@ -26,7 +28,7 @@ const TEMPLATE_FILES = [
   'blank_issue.yml'
 ];
 
-export function NewIssueModal({ isOpen, onClose }: NewIssueModalProps) {
+export function NewIssueModal({ isOpen, onClose, setSelectedIssue }: NewIssueModalProps) {
   const [templates, setTemplates] = useState<TemplateDef[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateDef | null>(null);
@@ -101,7 +103,7 @@ export function NewIssueModal({ isOpen, onClose }: NewIssueModalProps) {
     }
 
     try {
-      await createIssueMutation.mutateAsync({
+      const newIssue = await createIssueMutation.mutateAsync({
         title: issueTitle,
         body: fullBodyMarkdown.trim(),
         labels: selectedTemplate.labels || []
@@ -110,7 +112,7 @@ export function NewIssueModal({ isOpen, onClose }: NewIssueModalProps) {
       setIssueTitle('');
       setIssueBodies({});
       onClose();
-      
+      setSelectedIssue(newIssue);
     } catch (e) {
       console.error("Failed to create issue:", e);
       alert("이슈 생성에 실패했습니다. 관리자 권한 토큰을 확인하세요.");

@@ -10,8 +10,8 @@ export function IssuesList() {
   const [selectedIssue, setSelectedIssue] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  const { data: allIssues = [], isLoading: loading, isError } = useGithubIssues();
-  
+  const { data , isLoading: loading, isError, refetch } = useGithubIssues();
+  const allIssues = data ?? [];
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 20; // Temporarily reduced to 1 for demonstration
@@ -39,7 +39,7 @@ export function IssuesList() {
       return { char: 'F', color: 'bg-[#6195f2]', key: 'Feature' }; 
     }
     if (labelsStr.includes('design')) {
-      return { char: 'D', color: 'bg-[#e75494]', key: 'Design' }; 
+      return { char: 'D', color: 'bg-[#e75494]', key: 'Design' };
     }
     return { char: 'T', color: 'bg-[#82c695]', key: 'Task' }; 
   };
@@ -89,6 +89,7 @@ export function IssuesList() {
   };
 
   const totalPages = Math.ceil(displayIssues.length / ITEMS_PER_PAGE);
+  
   const paginatedIssues = displayIssues.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   if (currentView === 'labels') {
@@ -149,6 +150,7 @@ export function IssuesList() {
       <NewIssueModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        setSelectedIssue={setSelectedIssue}
       />
     </>
   );
