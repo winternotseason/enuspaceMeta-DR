@@ -1,0 +1,28 @@
+name: Feature request
+description: "새로운 기능을 제안합니다."
+title: "[FEATURE]: "
+labels: ["feature"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: 기능 제안 설명
+      description: 새롭게 추가되었으면 하는 기능에 대해 상세히 적어주세요.
+      placeholder: ex) 대시보드에서 차트를 엑셀로 내보내는 기능이 필요합니다.
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: 제안 이유
+      description: 이 기능이 왜 필요한가요? 어떤 문제를 해결할 수 있나요?
+      placeholder: ex) 매번 수동으로 데이터를 복사해야 해서 시간이 오래 걸립니다.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 대체 방안
+      description: 고려해보신 다른 대안이나 해결책이 있다면 적어주세요.
+    validations:
+      required: false
