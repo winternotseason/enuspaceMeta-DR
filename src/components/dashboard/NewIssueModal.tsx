@@ -1,9 +1,14 @@
 import  { useState, useEffect } from 'react';
-import { X, ArrowRight, ArrowLeft, Maximize2 } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, Maximize2, Settings, Search, Check } from 'lucide-react';
 import yaml from 'js-yaml';
 import { Button } from '@/components/ui/button';
 import { MarkdownEditor } from './MarkdownEditor';
-import { useCreateIssue } from '@/hooks/useGithub';
+import { useCreateIssue, useGithubLabels } from '@/hooks/useGithub';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+} from '@/components/ui/dropdown-menu';
 import { Dispatch } from 'react';
 
 interface NewIssueModalProps {
@@ -36,7 +41,14 @@ export function NewIssueModal({ isOpen, onClose, setSelectedIssue }: NewIssueMod
   // Form State
   const [issueTitle, setIssueTitle] = useState('');
   const [issueBodies, setIssueBodies] = useState<Record<string, string>>({});
+  const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
+  
   const createIssueMutation = useCreateIssue();
+  const { data: allLabels = [] } = useGithubLabels();
+
+  const [isLabelMenuOpen, setIsLabelMenuOpen] = useState(false);
+  const [labelSearch, setLabelSearch] = useState('');
+  const [snapshotLabelNames, setSnapshotLabelNames] = useState<string[]>([]);
 
   useEffect(() => {
     if (isOpen && templates.length === 0) {
@@ -72,6 +84,7 @@ export function NewIssueModal({ isOpen, onClose, setSelectedIssue }: NewIssueMod
   const handleSelectTemplate = (tpl: TemplateDef) => {
     setSelectedTemplate(tpl);
     setIssueTitle(tpl.title || '');
+    setSelectedLabels(tpl.labels || []);
     
     // Initialize body fields
     const initialBodies: Record<string, string> = {};
@@ -106,11 +119,12 @@ export function NewIssueModal({ isOpen, onClose, setSelectedIssue }: NewIssueMod
       const newIssue = await createIssueMutation.mutateAsync({
         title: issueTitle,
         body: fullBodyMarkdown.trim(),
-        labels: selectedTemplate.labels || []
+        labels: selectedLabels
       });
       setSelectedTemplate(null);
       setIssueTitle('');
       setIssueBodies({});
+      setSelectedLabels([]);
       onClose();
       setSelectedIssue(newIssue);
     } catch (e) {
@@ -118,6 +132,22 @@ export function NewIssueModal({ isOpen, onClose, setSelectedIssue }: NewIssueMod
       alert("이슈 생성에 실패했습니다. 관리자 권한 토큰을 확인하세요.");
     }
   };
+
+  const handleToggleLabel = (labelName: string) => {
+    setSelectedLabels(prev => 
+      prev.includes(labelName) 
+        ? prev.filter(l => l !== labelName) 
+        : [...prev, labelName]
+    );
+  };
+
+  const filteredLabels = allLabels.filter((l: any) => 
+    l.name.toLowerCase().includes(labelSearch.toLowerCase()) || 
+    (l.description && l.description.toLowerCase().includes(labelSearch.toLowerCase()))
+  );
+
+  const selectedLabelsToRender = filteredLabels.filter((l: any) => snapshotLabelNames.includes(l.name));
+  const unselectedLabelsToRender = filteredLabels.filter((l: any) => !snapshotLabelNames.includes(l.name));
 
   if (!isOpen) return null;
 
@@ -175,9 +205,6 @@ export function NewIssueModal({ isOpen, onClose, setSelectedIssue }: NewIssueMod
           </div>
         </div>
       ) : (
-        // ********************************
-        // DETAILED FORM VIEW
-        // ********************************
         <div 
           className="w-full max-w-225 bg-white rounded-xl shadow-lg border border-[#d0d7de] font-sans flex flex-col flex-1 max-h-[90vh] overflow-hidden"
           onClick={(e) => e.stopPropagation()}
@@ -263,20 +290,129 @@ export function NewIssueModal({ isOpen, onClose, setSelectedIssue }: NewIssueMod
                 );
               })}
 
-              {/* Labels Indicator */}
-              {selectedTemplate.labels && selectedTemplate.labels.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-4 border-t border-[#d0d7de] w-full">
-                  {selectedTemplate.labels.map(lbl => (
-                    <span 
-                      key={lbl} 
-                      className="px-2.5 py-0.5 text-[12px] font-medium rounded-full bg-white text-[#57606a] border border-[#d0d7de] flex items-center shadow-sm"
-                    >
-                      <span className="w-2 h-2 rounded-full bg-[#d83b4b] mr-1.5"></span>
-                      {lbl}
-                    </span>
-                  ))}
-                </div>
-              )}
+              {/* Labels Selector */}
+              <div className="flex flex-col pt-4 border-t border-[#d0d7de] w-full">
+                <DropdownMenu open={isLabelMenuOpen} onOpenChange={(open) => {
+                  setIsLabelMenuOpen(open);
+                  if (open) {
+                    setSnapshotLabelNames(selectedLabels);
+                  } else {
+                    setLabelSearch('');
+                  }
+                }}>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center text-[13px] font-semibold text-[#24292f] hover:bg-[#f3f4f6] w-max mb-3 px-3 py-1.5 border border-[#d0d7de] rounded-md shadow-sm bg-[#f6f8fa] transition-colors">
+                      <Settings className="w-4 h-4 mr-2 opacity-70" /> Labels
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-72 p-0 border-[#d0d7de] shadow-lg rounded-md overflow-hidden bg-white z-[60]">
+                    <div className="px-3 py-2 bg-white flex items-center border-b border-[#d0d7de]">
+                      <span className="font-semibold text-[#24292f] text-[13px]">Apply labels to this issue</span>
+                    </div>
+                    <div className="px-3 py-2 bg-white border-b border-[#d0d7de]">
+                      <div className="relative">
+                        <Search className="w-4 h-4 text-[#57606a] absolute left-2 top-1.5" />
+                        <input 
+                          type="text" 
+                          value={labelSearch}
+                          onChange={(e) => setLabelSearch(e.target.value)}
+                          placeholder="Filter labels"
+                          className="w-full pl-8 pr-3 py-1 text-[13px] border border-[#d0d7de] rounded-md focus:border-[#0969da] outline-none transition-all placeholder:text-[#8c959f] focus:ring-1 focus:ring-[#0969da]"
+                          autoFocus
+                          onKeyDown={(e) => e.stopPropagation()}
+                        />
+                      </div>
+                    </div>
+                    <div className="max-h-64 overflow-y-auto bg-white custom-scrollbar">
+                      {selectedLabelsToRender.length > 0 && (
+                        <>
+                          <div className="bg-[#f6f8fa] px-3 py-1.5 text-[12px] font-semibold border-b border-[#d0d7de] text-[#57606a]">
+                            Selected labels
+                          </div>
+                          <div>
+                            {selectedLabelsToRender.map((label: any) => (
+                              <div 
+                                key={label.id}
+                                className="flex items-start px-3 py-2 border-b border-[#d0d7de] hover:bg-[#f3f4f6] cursor-pointer last:border-b-0"
+                                onClick={() => handleToggleLabel(label.name)}
+                              >
+                                <div className={`mr-2 mt-0.5 w-4 h-4 flex items-center justify-center shrink-0 rounded-md border ${selectedLabels.includes(label.name) ? 'bg-[#0969da] border-[#0969da]' : 'bg-white border-[#d0d7de]'}`}>
+                                   {selectedLabels.includes(label.name) && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+                                </div>
+                                <div className="flex flex-col flex-1 min-w-0 pr-2">
+                                  <div className="flex items-center">
+                                    <span 
+                                      className="w-3.5 h-3.5 rounded-full mr-2 shrink-0 border border-black/10 shadow-sm"
+                                      style={{ backgroundColor: `#${label.color}` }}
+                                    ></span>
+                                    <span className="text-[13px] font-semibold text-[#24292f] truncate">{label.name}</span>
+                                  </div>
+                                  {label.description && (
+                                    <span className="text-[12px] text-[#57606a] truncate mt-0.5">{label.description}</span>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                      {unselectedLabelsToRender.length > 0 && (
+                        <>
+                          <div className="bg-[#f6f8fa] px-3 py-1.5 text-[12px] font-semibold border-b border-[#d0d7de] border-t-0 text-[#57606a]">
+                            Suggestions
+                          </div>
+                          <div>
+                            {unselectedLabelsToRender.map((label: any) => (
+                              <div 
+                                key={label.id}
+                                className="flex items-start px-3 py-2 border-b border-[#d0d7de] hover:bg-[#f3f4f6] cursor-pointer last:border-b-0"
+                                onClick={() => handleToggleLabel(label.name)}
+                              >
+                                <div className={`mr-2 mt-0.5 w-4 h-4 flex items-center justify-center shrink-0 rounded-md border ${selectedLabels.includes(label.name) ? 'bg-[#0969da] border-[#0969da]' : 'bg-white border-[#d0d7de]'}`}>
+                                   {selectedLabels.includes(label.name) && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+                                </div>
+                                <div className="flex flex-col flex-1 min-w-0 pr-2">
+                                  <div className="flex items-center">
+                                    <span 
+                                      className="w-3.5 h-3.5 rounded-full mr-2 shrink-0 border border-black/10 shadow-sm"
+                                      style={{ backgroundColor: `#${label.color}` }}
+                                    ></span>
+                                    <span className="text-[13px] font-semibold text-[#24292f] truncate">{label.name}</span>
+                                  </div>
+                                  {label.description && (
+                                    <span className="text-[12px] text-[#57606a] truncate mt-0.5">{label.description}</span>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                {/* Display currently selected labels */}
+                {selectedLabels.length > 0 ? (
+                  <div className="flex flex-wrap gap-2 mt-1">
+                    {selectedLabels.map(lbl => {
+                      const fullLabel = allLabels.find((l: any) => l.name === lbl);
+                      if (!fullLabel) return null;
+                      return (
+                        <span 
+                          key={lbl} 
+                          className="px-2.5 py-0.5 text-[12px] font-semibold rounded-full border border-black/10 flex items-center shadow-sm text-white"
+                          style={{ backgroundColor: `#${fullLabel.color}` }}
+                        >
+                          {lbl}
+                        </span>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-[13px] text-[#57606a]">None yet</div>
+                )}
+              </div>
             </div>
             
           </div>
