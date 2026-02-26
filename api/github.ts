@@ -1,9 +1,4 @@
-import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-export default async function handler(
-  req: VercelRequest,
-  res: VercelResponse
-) {
+module.exports = async function (req: any, res: any) {
   const { code } = req.query;
 
   if (!code || typeof code !== 'string') {
@@ -60,7 +55,8 @@ export default async function handler(
       token: tokenData.access_token,
     });
 
-  } catch (error) {
+  } catch (err) {
+    console.error(err);
     return res.status(500).json({ error: 'Server error' });
   }
-}
+};
