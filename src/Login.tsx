@@ -6,8 +6,7 @@ export default function Login({ onLogin }: { onLogin?: (user: any) => void }) {
   const [errorMsg, setErrorMsg] = useState("");
 
   const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
-  const clientSecret = import.meta.env.VITE_GITHUB_CLIENT_SECRET;
-  const orgName = import.meta.env.VITE_GITHUB_ORG || 'EXPNUNI';
+
 
  useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
