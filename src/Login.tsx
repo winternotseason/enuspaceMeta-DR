@@ -50,7 +50,7 @@ export default function Login({ onLogin }: { onLogin?: (user: any) => void }) {
         headers: { 'Authorization': `Bearer ${tokenData.access_token}` }
       });
       const userData = await userResponse.json();
-      const loginUser = userData.login;
+      
 
       // 3. 조직(Organization) 멤버인지 확인 (로그인한 유저의 토큰으로 확인)
       const orgResponse = await fetch('https://api.github.com/user/orgs', {
