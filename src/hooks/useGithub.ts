@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-const getHeaders = (useUserToken: boolean = false): HeadersInit => {
+const getHeaders = (): HeadersInit => {
   const userToken = localStorage.getItem('github_token');
 
   const headers: Record<string, string> = {
@@ -8,7 +8,7 @@ const getHeaders = (useUserToken: boolean = false): HeadersInit => {
     'Content-Type': 'application/json',
   };
 
-  if (useUserToken && userToken) {
+  if (userToken) {
     headers['Authorization'] = `Bearer ${userToken}`;
   }
 
@@ -103,7 +103,7 @@ export const useCreateIssue = () => {
       const orgName = getOrgName();
       const res = await fetch(`https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues`, {
         method: 'POST',
-        headers: getHeaders(true),
+        headers: getHeaders(),
         body: JSON.stringify({
           title,
           body,
@@ -152,7 +152,7 @@ export const useAddIssueComment = (issueNumber: number) => {
       const orgName = getOrgName();
       const res = await fetch(`https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues/${issueNumber}/comments`, {
         method: 'POST',
-        headers: getHeaders(true),
+        headers: getHeaders(),
         body: JSON.stringify({ body }),
         cache : 'no-cache'
       });
@@ -181,7 +181,7 @@ export const useAddReaction = (issueNumber: number) => {
         : `https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues/${issueNumber}/reactions`;
         
       // Fetch current reactions to check for a toggle
-      const existingRes = await fetch(reactionsUrl, { headers: getHeaders(true) });
+      const existingRes = await fetch(reactionsUrl, { headers: getHeaders() });
       let existingReactions: any[] = [];
       if (existingRes.ok) {
         existingReactions = await existingRes.json();
@@ -207,7 +207,7 @@ export const useAddReaction = (issueNumber: number) => {
           ? `https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues/comments/${commentId}/reactions/${existingReactionId}`
           : `https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues/${issueNumber}/reactions/${existingReactionId}`;
         
-        const res = await fetch(deleteUrl, { method: 'DELETE', headers: getHeaders(true) });
+        const res = await fetch(deleteUrl, { method: 'DELETE', headers: getHeaders() });
         if (!res.ok) throw new Error('Failed to delete reaction');
         return { isDeleted: true, content, commentId };
       }
@@ -215,7 +215,7 @@ export const useAddReaction = (issueNumber: number) => {
       // Otherwise, add it (Toggle ON)
       const res = await fetch(reactionsUrl, {
         method: 'POST',
-        headers: getHeaders(true),
+        headers: getHeaders(),
         body: JSON.stringify({ content }),
       });
 
@@ -240,7 +240,7 @@ export const useUpdateIssueComment = (issueNumber: number) => {
       const orgName = getOrgName();
       const res = await fetch(`https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues/comments/${commentId}`, {
         method: 'PATCH',
-        headers: getHeaders(true),
+        headers: getHeaders(),
         body: JSON.stringify({ body }),
         cache : 'no-cache'
       });
@@ -266,7 +266,7 @@ export const useDeleteIssueComment = (issueNumber: number) => {
       const orgName = getOrgName();
       const res = await fetch(`https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues/comments/${commentId}`, {
         method: 'DELETE',
-        headers: getHeaders(true),
+        headers: getHeaders(),
         cache : 'no-cache'
       });
 
@@ -290,7 +290,7 @@ export const useUpdateIssue = (issueNumber: number) => {
       const orgName = getOrgName();
       const res = await fetch(`https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues/${issueNumber}`, {
         method: 'PATCH',
-        headers: getHeaders(true),
+        headers: getHeaders(),
         body: JSON.stringify(updates),
         cache : 'no-cache'
       });
@@ -315,7 +315,7 @@ export const useUpdateIssueLabels = (issueNumber: number) => {
       const orgName = getOrgName();
       const res = await fetch(`https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues/${issueNumber}`, {
         method: 'PATCH',
-        headers: getHeaders(true),
+        headers: getHeaders(),
         body: JSON.stringify({ labels }),
         cache : 'no-cache'
       });
@@ -341,7 +341,7 @@ export const useCloseIssue = (issueNumber: number) => {
       const orgName = getOrgName();
       const res = await fetch(`https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues/${issueNumber}`, {
         method: 'PATCH',
-        headers: getHeaders(true),
+        headers: getHeaders(),
         body: JSON.stringify({ state: 'closed' }),
         cache : 'no-cache'
       });
@@ -367,7 +367,7 @@ export const useReopenIssue = (issueNumber: number) => {
       const orgName = getOrgName();
       const res = await fetch(`https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues/${issueNumber}`, {
         method: 'PATCH',
-        headers: getHeaders(true),
+        headers: getHeaders(),
         body: JSON.stringify({ state: 'open', state_reason: 'reopened' }),
         cache : 'no-cache'
       });
@@ -393,7 +393,7 @@ export const useDeleteIssue = (issueNumber: number) => {
       const orgName = getOrgName();
       const res = await fetch(`https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues/${issueNumber}`, {
         method: 'DELETE',
-        headers: getHeaders(true),
+        headers: getHeaders(),
         cache : 'no-cache'
       });
 
