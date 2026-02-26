@@ -1,15 +1,22 @@
-
-interface HeaderProps {
-  activeTab: string;
-}
+import { useLocation } from 'react-router-dom';
 
 const tabNames: Record<string, string> = {
-  issues: '이슈',
-  members: '조직원',
+  '/issues': '이슈',
+  '/members': '조직원',
 };
 
-export function Header({ activeTab }: HeaderProps) {
-  const currentTitle = tabNames[activeTab] || '이슈';
+export function Header() {
+  const location = useLocation();
+  
+  let currentTitle = tabNames[location.pathname];
+  if (!currentTitle) {
+    if (location.pathname.startsWith('/issues/')) {
+      currentTitle = '이슈 상세';
+    } else {
+      currentTitle = '이슈';
+    }
+  }
+
   return (
     <header className="h-14 border-b border-[#e1e4e8] bg-white flex items-center justify-between px-4 shrink-0 w-full z-10">
       <div className="flex items-center space-x-3 ">

@@ -1,13 +1,13 @@
-import  { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { LabelsList } from './LabelsList';
 import { useGithubIssues } from '@/hooks/useGithub';
 import { IssuesListView } from './IssuesListView';
 import { NewIssueModal } from './NewIssueModal';
-import { IssueDetailView } from './IssueDetailView';
 
 export function IssuesList() {
+  const navigate = useNavigate();
   const [currentView, setCurrentView] = useState<'issues' | 'labels'>('issues');
-  const [selectedIssue, setSelectedIssue] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   const { data , isLoading: loading, isError} = useGithubIssues();
@@ -96,26 +96,6 @@ export function IssuesList() {
     return <LabelsList onBackToIssues={() => setCurrentView('issues')} />;
   }
 
-  // Derive active issue from allIssues to catch cache updates
-  const activeIssue = selectedIssue ? (allIssues.find(i => i.number === selectedIssue.number) || selectedIssue) : null;
-
-  if (activeIssue) {
-    return (
-      <IssueDetailView 
-        issue={activeIssue} 
-        onBack={() => {
-          setSelectedIssue(null);
-          // @ts-ignore
-          if (typeof window !== 'undefined' && window.__setSelectedIssueTitle) {
-            // @ts-ignore
-            window.__setSelectedIssueTitle(null);
-          }
-        }} 
-       
-      />
-    );
-  }
-
   return (
     <>
       <IssuesListView
@@ -144,13 +124,13 @@ export function IssuesList() {
         totalPages={totalPages}
         setCurrentView={setCurrentView}
         onOpenNewIssueModal={() => setIsModalOpen(true)}
-        onSelectIssue={setSelectedIssue}
+        onSelectIssue={(issue) => navigate(`/issues/${issue.number}`)}
       />
 
       <NewIssueModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        setSelectedIssue={setSelectedIssue}
+        setSelectedIssue={(issue) => navigate(`/issues/${issue.number}`)}
       />
     </>
   );

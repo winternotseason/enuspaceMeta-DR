@@ -1,6 +1,10 @@
 import { useState } from 'react';
-import Login from './Login';
-import Dashboard from './Dashboard';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
+import { DashboardLayout } from './components/layout/DashboardLayout';
+import { IssuesPage } from './pages/IssuesPage';
+import { IssueDetailPage } from './pages/IssueDetailPage';
+import { MembersPage } from './pages/MembersPage';
 
 export default function App() {
   const [user, setUser] = useState<any>(() => {
@@ -15,8 +19,24 @@ export default function App() {
   };
 
   if (!user) {
-    return <Login onLogin={(userData) => setUser(userData)} />;
+    return (
+      <Routes>
+        <Route path="/login" element={<Login onLogin={(userData) => setUser(userData)} />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
   }
 
-  return <Dashboard user={user} onLogout={handleLogout} />;
+  return (
+    <Routes>
+      <Route element={<DashboardLayout user={user} onLogout={handleLogout} />}>
+        <Route path="/issues" element={<IssuesPage />} />
+        <Route path="/issues/:id" element={<IssueDetailPage />} />
+        <Route path="/members" element={<MembersPage />} />
+        <Route path="/login" element={<Navigate to="/issues" replace />} />
+        <Route path="/" element={<Navigate to="/issues" replace />} />
+        <Route path="*" element={<Navigate to="/issues" replace />} />
+      </Route>
+    </Routes>
+  );
 }
