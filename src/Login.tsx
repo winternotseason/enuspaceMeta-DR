@@ -8,7 +8,6 @@ export default function Login({ onLogin }: { onLogin?: (user: any) => void }) {
   const clientId = import.meta.env.VITE_GITHUB_CLIENT_ID;
   const clientSecret = import.meta.env.VITE_GITHUB_CLIENT_SECRET;
   const orgName = import.meta.env.VITE_GITHUB_ORG || 'EXPNUNI';
-  const adminToken = import.meta.env.VITE_GITHUB_TOKEN;
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -53,21 +52,20 @@ export default function Login({ onLogin }: { onLogin?: (user: any) => void }) {
       const userData = await userResponse.json();
       const loginUser = userData.login;
 
-      // 3. 조직(Organization) 멤버인지 확인
-      const orgResponse = await fetch(`https://api.github.com/orgs/${orgName}/members`, {
+      // 3. 조직(Organization) 멤버인지 확인 (로그인한 유저의 토큰으로 확인)
+      const orgResponse = await fetch('https://api.github.com/user/orgs', {
         headers: {
-          'Authorization': `Bearer ${adminToken}`,
+          'Authorization': `Bearer ${tokenData.access_token}`,
           'Accept': 'application/vnd.github.v3+json'
         }
       });
-      const orgMembers = await orgResponse.json();
+      const userOrgs = await orgResponse.json();
       
-      // 혹시 권한이나 요청 문제로 배열이 안 왔을 경우 방어
-      if (!Array.isArray(orgMembers)) {
-        throw new Error("조직 멤버 목록을 불러오지 못했습니다. Admin Token 권한을 확인하세요.");
+      if (!Array.isArray(userOrgs)) {
+        throw new Error("조직 목록을 불러오지 못했습니다. Github 인증 상태를 확인하세요.");
       }
 
-      const isMember = orgMembers.some((member: any) => member.login === loginUser);
+      const isMember = userOrgs.some((org: any) => org.login.toLowerCase() === orgName.toLowerCase());
 
       if (isMember) {
         localStorage.setItem('github_token', tokenData.access_token);
@@ -90,8 +88,8 @@ export default function Login({ onLogin }: { onLogin?: (user: any) => void }) {
       setErrorMsg(".env에 VITE_GITHUB_CLIENT_ID 와 SECRET을 설정해주세요.");
       return;
     }
-    // GitHub 로그인 창으로 리다이렉트 (repo 권한을 얻어 이슈 생성 가능하게 함)
-    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=repo`;
+    // GitHub 로그인 창으로 리다이렉트 (repo 권한 및 조직 조회 권한 요청)
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${clientId}&scope=repo%20read:org`;
   };
 
   return (
