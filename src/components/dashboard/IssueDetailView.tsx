@@ -12,7 +12,7 @@ import { IssueSidebar } from './issue-detail/IssueSidebar';
 import { IssueCommentBox } from './issue-detail/IssueCommentBox';
 import { IssueTimelineEvent } from './issue-detail/IssueTimelineEvent';
 
-export function IssueDetailView({ issue, onBack, onNewIssue }: { issue: any, onBack: () => void, onNewIssue: () => void }) {
+export function IssueDetailView({ issue, onBack }: { issue: any, onBack: () => void}) {
   const {
     activeReactionId,
     setActiveReactionId,
@@ -98,7 +98,6 @@ export function IssueDetailView({ issue, onBack, onNewIssue }: { issue: any, onB
       <IssueHeader 
         issue={issue} 
         onBack={onBack} 
-        onNewIssue={onNewIssue} 
         isEditingTitle={isEditingTitle}
         setIsEditingTitle={setIsEditingTitle}
         editingTitle={editingTitle}

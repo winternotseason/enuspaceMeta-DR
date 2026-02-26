@@ -1,8 +1,8 @@
 
-import { ChevronDown, MoreHorizontal } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ChevronDown} from 'lucide-react';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Checkbox } from '@/components/ui/checkbox';
+
 import { MappingName } from '../../constant/Mapping';
 
 interface GithubMember {

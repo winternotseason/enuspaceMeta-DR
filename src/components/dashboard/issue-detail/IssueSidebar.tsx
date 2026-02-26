@@ -115,7 +115,7 @@ export function IssueSidebar({ issue }: { issue: any }) {
                         className="flex items-start px-3 py-2 border-b border-[#d0d7de] hover:bg-[#f3f4f6] cursor-pointer last:border-b-0"
                         onClick={() => handleToggleLabel(label.name)}
                       >
-                        <div className={`mr-2 mt-0.5 w-4 h-4 flex items-center justify-center shrink-0 rounded-[4px] border ${currentLabelNames.includes(label.name) ? 'bg-[#0969da] border-[#0969da]' : 'bg-white border-[#d0d7de]'}`}>
+                        <div className={`mr-2 mt-0.5 w-4 h-4 flex items-center justify-center shrink-0 rounded-lg border ${currentLabelNames.includes(label.name) ? 'bg-[#0969da] border-[#0969da]' : 'bg-white border-[#d0d7de]'}`}>
                            {currentLabelNames.includes(label.name) && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
                         </div>
                         <div className="flex flex-col flex-1 min-w-0 pr-2">
@@ -149,7 +149,7 @@ export function IssueSidebar({ issue }: { issue: any }) {
                         className="flex items-start px-3 py-2 border-b border-[#d0d7de] hover:bg-[#f3f4f6] cursor-pointer last:border-b-0"
                         onClick={() => handleToggleLabel(label.name)}
                       >
-                        <div className={`mr-2 mt-0.5 w-4 h-4 flex items-center justify-center shrink-0 rounded-[4px] border ${currentLabelNames.includes(label.name) ? 'bg-[#0969da] border-[#0969da]' : 'bg-white border-[#d0d7de]'}`}>
+                        <div className={`mr-2 mt-0.5 w-4 h-4 flex items-center justify-center shrink-0 rounded-lg border ${currentLabelNames.includes(label.name) ? 'bg-[#0969da] border-[#0969da]' : 'bg-white border-[#d0d7de]'}`}>
                            {currentLabelNames.includes(label.name) && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
                         </div>
                         <div className="flex flex-col flex-1 min-w-0 pr-2">

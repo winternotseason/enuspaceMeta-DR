@@ -110,7 +110,7 @@ export function IssuesList() {
             window.__setSelectedIssueTitle(null);
           }
         }} 
-        onNewIssue={() => setIsModalOpen(true)}
+       
       />
     );
   }

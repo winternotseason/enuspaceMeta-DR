@@ -73,7 +73,7 @@ export function useIssueDetail(issue: any) {
     });
 
     try {
-      await updateIssueMutation.mutateAsync(editingIssueBody);
+      await updateIssueMutation.mutateAsync({body :editingIssueBody});
     } catch {
       queryClient.invalidateQueries({ queryKey: ['github-issues'] });
     }

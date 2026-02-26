@@ -1,13 +1,13 @@
 import { MappingName } from '@/constant/Mapping';
 import { 
-  Users, Settings, LogOut, User, MoreHorizontal,
+  Users,  LogOut,  MoreHorizontal,
   CheckCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, 
-  DropdownMenuItem, DropdownMenuSeparator, DropdownMenuLabel 
+  DropdownMenuItem
 } from '@/components/ui/dropdown-menu';
 
 interface SidebarProps {

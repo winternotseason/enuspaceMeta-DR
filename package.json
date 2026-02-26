@@ -1,13 +1,16 @@
 {
   "name": "qa-page",
   "version": "1.0.0",
+  "homepage" : "https://EXPNUNI.github.io/enuspaceMeta-DR",
   "description": "",
   "main": "index.js",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "start": "vite preview --host"
+    "start": "vite preview --host",
+    "predeploy": "npm run build", 
+    "deploy": "gh-pages -d dist"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +39,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.4",
     "autoprefixer": "^10.4.24",
+    "gh-pages": "^6.3.0",
     "postcss": "^8.5.6",
     "shadcn": "^3.8.5",
     "tailwindcss": "^4.2.1",

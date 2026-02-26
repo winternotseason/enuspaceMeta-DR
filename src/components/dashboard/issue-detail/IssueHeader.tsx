@@ -6,7 +6,7 @@ import { getTimeAgo } from '@/utils/helpers';
 export function IssueHeader({ 
   issue, 
   onBack,
-  onNewIssue,
+
   isEditingTitle,
   setIsEditingTitle,
   editingTitle,
@@ -16,7 +16,7 @@ export function IssueHeader({
 }: { 
   issue: any, 
   onBack: () => void,
-  onNewIssue?: () => void,
+
   isEditingTitle?: boolean,
   setIsEditingTitle?: (b: boolean) => void,
   editingTitle?: string,
