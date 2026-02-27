@@ -46,7 +46,7 @@ export default function Login({ onLogin }: { onLogin?: (user: any) => void }) {
 
 const handleLoginClick = () => {
   if (!clientId) {
-    setErrorMsg("CLIENT_ID 없음");
+    setErrorMsg("Vercel 환경 변수에 VITE_GITHUB_CLIENT_ID가 설정되지 않았습니다. Vercel 대시보드에서 환경 변수를 추가하고 다시 배포해주세요.");
     return;
   }
 

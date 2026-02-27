@@ -9,19 +9,23 @@ import {
   DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, 
   DropdownMenuItem
 } from '@/components/ui/dropdown-menu';
+import { useLocation, Link } from 'react-router-dom';
 
 interface SidebarProps {
-  activeTab: string;
-  setActiveTab: (tab: any) => void;
   onLogout?: () => void;
   user?: any;
 }
 
-export function Sidebar({ activeTab, setActiveTab, onLogout, user }: SidebarProps) {
+export function Sidebar({ onLogout, user }: SidebarProps) {
+  const location = useLocation();
   const mainNavItems = [
-    { id: 'issues', label: '이슈', icon: CheckCircle },
-    { id: 'members', label: '조직원', icon: Users },
+    { id: 'issues', label: '이슈', icon: CheckCircle, path: '/issues' },
+    { id: 'members', label: '조직원', icon: Users, path: '/members' },
   ];
+
+  const getIsActive = (path: string) => {
+    return location.pathname.startsWith(path);
+  };
 
 
   return (
@@ -34,19 +38,18 @@ export function Sidebar({ activeTab, setActiveTab, onLogout, user }: SidebarProp
       <div className="flex-1 overflow-y-auto mb-2 no-scrollbar">
         <nav className="space-y-1 px-3">
           {mainNavItems.map((item) => (
-            <a 
+            <Link 
               key={item.id}
-              href="#" 
-              onClick={(e) => { e.preventDefault(); setActiveTab(item.id); }}
+              to={item.path}
               className={`flex items-center px-3 py-4 rounded-lg transition-all duration-200 group ${
-                activeTab === item.id 
+                getIsActive(item.path) 
                   ? 'bg-white/10 text-white font-medium shadow-sm' 
                   : 'text-[#8e959f] hover:bg-white/10 hover:text-white'
               }`}
             >
-              <item.icon className="w-6 h-6 mr-3.5" strokeWidth={activeTab === item.id ? 2.5 : 2} />
+              <item.icon className="w-6 h-6 mr-3.5" strokeWidth={getIsActive(item.path) ? 2.5 : 2} />
               <span className="text-base">{item.label}</span>
-            </a>
+            </Link>
           ))}
         </nav>
 
