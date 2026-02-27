@@ -124,13 +124,13 @@ export function IssuesList() {
         totalPages={totalPages}
         setCurrentView={setCurrentView}
         onOpenNewIssueModal={() => setIsModalOpen(true)}
-        onSelectIssue={(issue) => navigate(`/issues/${issue.number}`)}
+        onSelectIssue={(issue) => navigate(`/issues/${issue.number}`, { state: { initialIssue: issue } })}
       />
 
       <NewIssueModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        setSelectedIssue={(issue) => navigate(`/issues/${issue.number}`)}
+        navigateIssuePage={(issue) => navigate(`/issues/${issue.number}`, { state: { initialIssue: issue } })}
       />
     </>
   );

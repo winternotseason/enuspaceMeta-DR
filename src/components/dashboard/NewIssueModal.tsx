@@ -14,7 +14,7 @@ import { Dispatch } from 'react';
 interface NewIssueModalProps {
   isOpen: boolean;
   onClose: () => void;
-  setSelectedIssue: Dispatch<any>
+  navigateIssuePage: Dispatch<any>
 }
 
 interface TemplateDef {
@@ -33,7 +33,7 @@ const TEMPLATE_FILES = [
   'blank_issue.yml'
 ];
 
-export function NewIssueModal({ isOpen, onClose, setSelectedIssue }: NewIssueModalProps) {
+export function NewIssueModal({ isOpen, onClose, navigateIssuePage }: NewIssueModalProps) {
   const [templates, setTemplates] = useState<TemplateDef[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateDef | null>(null);
@@ -126,7 +126,7 @@ export function NewIssueModal({ isOpen, onClose, setSelectedIssue }: NewIssueMod
       setIssueBodies({});
       setSelectedLabels([]);
       onClose();
-      setSelectedIssue(newIssue);
+      navigateIssuePage(newIssue);
     } catch (e) {
       console.error("Failed to create issue:", e);
       alert("이슈 생성에 실패했습니다. 관리자 권한 토큰을 확인하세요.");
