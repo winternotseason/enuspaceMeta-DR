@@ -51,7 +51,9 @@ if (!process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.MAIL_FROM) 
     issueTitle,
     issueUrl,
     issueAuthorLogin,
+    issueAuthorName,
     commentAuthorLogin,
+    commentAuthorName,
     commentBody,
     recipients,
   } = req.body || {};
@@ -66,7 +68,7 @@ if (!process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.MAIL_FROM) 
     text = [
       'A new issue has been created.',
       'Title: ' + (issueTitle || ''),
-      'Author: ' + (issueAuthorLogin || ''),
+      'Author: ' + (issueAuthorName || issueAuthorLogin || ''),
       issueUrl ? 'URL: ' + issueUrl : '',
     ]
       .filter(Boolean)
@@ -80,8 +82,8 @@ if (!process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.MAIL_FROM) 
     text = [
       'A new comment has been added to your issue.',
       'Title: ' + (issueTitle || ''),
-      'Issue Author: ' + (issueAuthorLogin || ''),
-      'Comment Author: ' + (commentAuthorLogin || ''),
+      'Issue Author: ' + (issueAuthorName || issueAuthorLogin || ''),
+      'Comment Author: ' + (commentAuthorName || commentAuthorLogin || ''),
       '',
       String(commentBody || ''),
       '',
