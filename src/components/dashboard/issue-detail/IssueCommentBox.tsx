@@ -17,7 +17,12 @@ export function IssueCommentBox({
 
   const handleAddComment = async () => {
     if (!commentBody.trim()) return;
-    await addCommentMutation.mutateAsync(commentBody);
+    await addCommentMutation.mutateAsync({
+      body: commentBody,
+      issueTitle: issue.title,
+      issueUrl: issue.html_url,
+      issueAuthorLogin: issue.user?.login,
+    });
     setCommentBody('');
     onCommentAdded();
   };

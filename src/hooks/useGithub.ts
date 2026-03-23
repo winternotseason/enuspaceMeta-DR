@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getNewIssueRecipients, notifyIssueByEmail } from '@/lib/issueNotification';
 
 const getHeaders = (): HeadersInit => {
   const userToken = localStorage.getItem('github_token');
@@ -54,9 +55,6 @@ export const useGithubLabels = () => {
       const data = await res.json();
       if (!Array.isArray(data)) return [];
       
-      // We process open issue counts with another step to keep logic clean,
-      // but to save requests, we can query them separately or here. Let's do it right here 
-      // as `LabelsList` expects them enriched.
       const enrichedLabels = await Promise.all(
         data.map(async (label: any) => {
           const encodedLabel = encodeURIComponent(label.name);
@@ -123,6 +121,17 @@ export const useCreateIssue = () => {
       return res.json();
     },
     onSuccess:  async (newIssue) => {
+      notifyIssueByEmail({
+        type: 'new-issue',
+        issueNumber: newIssue.number,
+        issueTitle: newIssue.title,
+        issueUrl: newIssue.html_url,
+        issueAuthorLogin: newIssue.user?.login,
+        recipients: getNewIssueRecipients(),
+      }).catch((error) => {
+        console.error('new issue email notification failed', error);
+      });
+
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['github-issues'] });
       }, 2000);
@@ -155,7 +164,17 @@ export const useAddIssueComment = (issueNumber: number) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (body: string) => {
+    mutationFn: async ({
+      body,
+      issueTitle,
+      issueUrl,
+      issueAuthorLogin,
+    }: {
+      body: string;
+      issueTitle: string;
+      issueUrl?: string;
+      issueAuthorLogin?: string;
+    }) => {
       const orgName = getOrgName();
       const res = await fetch(`https://api.github.com/repos/${orgName}/enuspaceMeta-issues/issues/${issueNumber}/comments`, {
         method: 'POST',
@@ -168,7 +187,21 @@ export const useAddIssueComment = (issueNumber: number) => {
         throw new Error('Failed to add comment');
       }
 
-      return res.json();
+      const newComment = await res.json();
+
+      notifyIssueByEmail({
+        type: 'new-comment',
+        issueNumber,
+        issueTitle,
+        issueUrl,
+        issueAuthorLogin,
+        commentAuthorLogin: newComment.user?.login,
+        commentBody: body,
+      }).catch((error) => {
+        console.error('issue comment email notification failed', error);
+      });
+
+      return newComment;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['github-issue-timeline', issueNumber] });
