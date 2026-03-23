@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+const nodemailer = require('nodemailer');
 
 const emailMapping = {
   BrightJoy: 'jwlee@enu-tech.co.kr',
