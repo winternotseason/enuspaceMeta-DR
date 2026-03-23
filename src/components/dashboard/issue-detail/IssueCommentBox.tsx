@@ -20,7 +20,6 @@ export function IssueCommentBox({
     await addCommentMutation.mutateAsync({
       body: commentBody,
       issueTitle: issue.title,
-      issueUrl: issue.html_url,
       issueAuthorLogin: issue.user?.login,
     });
     setCommentBody('');

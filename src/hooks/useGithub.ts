@@ -17,6 +17,8 @@ const getHeaders = (): HeadersInit => {
 };
 
 const getOrgName = () => import.meta.env.VITE_GITHUB_ORG || 'vercel';
+const getIssueAppUrl = (issueNumber: number) =>
+  `https://enuspace-dr.vercel.app/issues/${issueNumber}`;
 
 export const useGithubIssues = () => {
   return useQuery({
@@ -125,7 +127,7 @@ export const useCreateIssue = () => {
         type: 'new-issue',
         issueNumber: newIssue.number,
         issueTitle: newIssue.title,
-        issueUrl: newIssue.html_url,
+        issueUrl: getIssueAppUrl(newIssue.number),
         issueAuthorLogin: newIssue.user?.login,
         recipients: getNewIssueRecipients(),
       }).catch((error) => {
@@ -167,12 +169,10 @@ export const useAddIssueComment = (issueNumber: number) => {
     mutationFn: async ({
       body,
       issueTitle,
-      issueUrl,
       issueAuthorLogin,
     }: {
       body: string;
       issueTitle: string;
-      issueUrl?: string;
       issueAuthorLogin?: string;
     }) => {
       const orgName = getOrgName();
@@ -193,7 +193,7 @@ export const useAddIssueComment = (issueNumber: number) => {
         type: 'new-comment',
         issueNumber,
         issueTitle,
-        issueUrl,
+        issueUrl: getIssueAppUrl(issueNumber),
         issueAuthorLogin,
         commentAuthorLogin: newComment.user?.login,
         commentBody: body,
