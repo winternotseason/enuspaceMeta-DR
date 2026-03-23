@@ -6,7 +6,9 @@ type IssueNotificationPayload = {
   issueTitle: string;
   issueUrl?: string;
   issueAuthorLogin?: string;
+  issueAuthorName?: string;
   commentAuthorLogin?: string;
+  commentAuthorName?: string;
   commentBody?: string;
   recipients?: string[];
 };

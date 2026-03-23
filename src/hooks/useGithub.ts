@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getNewIssueRecipients, notifyIssueByEmail } from '@/lib/issueNotification';
+import { MappingName } from '@/constant/Mapping';
 
 const getHeaders = (): HeadersInit => {
   const userToken = localStorage.getItem('github_token');
@@ -19,6 +20,8 @@ const getHeaders = (): HeadersInit => {
 const getOrgName = () => import.meta.env.VITE_GITHUB_ORG || 'vercel';
 const getIssueAppUrl = (issueNumber: number) =>
   `https://enuspace-dr.vercel.app/issues/${issueNumber}`;
+const getDisplayName = (login?: string) =>
+  (login && MappingName[login as keyof typeof MappingName]) || login || '';
 
 export const useGithubIssues = () => {
   return useQuery({
@@ -129,6 +132,7 @@ export const useCreateIssue = () => {
         issueTitle: newIssue.title,
         issueUrl: getIssueAppUrl(newIssue.number),
         issueAuthorLogin: newIssue.user?.login,
+        issueAuthorName: getDisplayName(newIssue.user?.login),
         recipients: getNewIssueRecipients(),
       }).catch((error) => {
         console.error('new issue email notification failed', error);
@@ -195,7 +199,9 @@ export const useAddIssueComment = (issueNumber: number) => {
         issueTitle,
         issueUrl: getIssueAppUrl(issueNumber),
         issueAuthorLogin,
+        issueAuthorName: getDisplayName(issueAuthorLogin),
         commentAuthorLogin: newComment.user?.login,
+        commentAuthorName: getDisplayName(newComment.user?.login),
         commentBody: body,
       }).catch((error) => {
         console.error('issue comment email notification failed', error);
