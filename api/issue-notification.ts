@@ -37,10 +37,14 @@ module.exports = async function handler(req : any, res : any) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  if (!process.env.SMTP_HOST || !process.env.MAIL_FROM) {
-    return res.status(500).json({ error: 'Mail server is not configured' });
-  }
-
+if (!process.env.SMTP_USER || !process.env.SMTP_PASS || !process.env.MAIL_FROM) {
+  return res.status(500).json({
+    error: 'Mail server is not configured',
+    hasSmtpUser: !!process.env.SMTP_USER,
+    hasSmtpPass: !!process.env.SMTP_PASS,
+    hasMailFrom: !!process.env.MAIL_FROM,
+  });
+}
   const {
     type,
     issueNumber,
